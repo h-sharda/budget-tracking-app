@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import toast from "react-hot-toast";
 
 const INCOME_CATEGORIES = [
   "Salary",
@@ -39,16 +40,14 @@ export default function NewTransaction() {
     date: new Date().toISOString().split("T")[0],
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     if (!formData.amount || !formData.category) {
-      setError("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       setLoading(false);
       return;
     }
@@ -63,14 +62,15 @@ export default function NewTransaction() {
       });
 
       if (response.ok) {
+        toast.success("Transaction created successfully");
         router.push("/transactions");
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to create transaction");
+        toast.error(data.error || "Failed to create transaction");
       }
     } catch (err) {
       console.error(err);
-      setError("Something went wrong");
+      toast.error("Something went wrong");
     }
 
     setLoading(false);
@@ -222,12 +222,6 @@ export default function NewTransaction() {
                 placeholder="Optional description..."
               />
             </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                <div className="text-sm text-red-600">{error}</div>
-              </div>
-            )}
 
             <div className="flex justify-end space-x-4">
               <button

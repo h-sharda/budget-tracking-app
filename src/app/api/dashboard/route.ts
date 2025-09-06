@@ -44,9 +44,16 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
+    // Get user's base balance
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { baseBalance: true, currency: true },
+    });
+
     const totalIncome = incomeResult._sum.amount || 0;
     const totalExpenses = expenseResult._sum.amount || 0;
-    const netBalance = totalIncome - totalExpenses;
+    const baseBalance = user?.baseBalance || 0;
+    const netBalance = baseBalance + totalIncome - totalExpenses;
 
     // Get monthly data for the last 6 months for charts
     const monthlyData = [];
@@ -117,9 +124,11 @@ export async function GET(req: NextRequest) {
       currentMonth: {
         totalIncome,
         totalExpenses,
+        baseBalance,
         netBalance,
         month: targetMonth,
         year: targetYear,
+        currency: user?.currency || "INR",
       },
       monthlyData,
       categoryData,

@@ -4,29 +4,28 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters");
       setLoading(false);
       return;
     }
@@ -45,6 +44,7 @@ export default function SignUp() {
       });
 
       if (res.ok) {
+        toast.success("Account created successfully");
         // Auto sign in after successful registration
         const result = await signIn("credentials", {
           email,
@@ -53,17 +53,18 @@ export default function SignUp() {
         });
 
         if (result?.error) {
-          setError("Registration successful but login failed");
+          toast.error("Registration successful but login failed");
         } else {
+          toast.success("Signed in successfully");
           router.push("/dashboard");
         }
       } else {
         const data = await res.json();
-        setError(data.error || "Something went wrong");
+        toast.error(data.error || "Something went wrong");
       }
     } catch (err) {
       console.error(err);
-      setError("Something went wrong");
+      toast.error("Something went wrong");
     }
 
     setLoading(false);
@@ -165,10 +166,6 @@ export default function SignUp() {
               />
             </div>
           </div>
-
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
 
           <div>
             <button

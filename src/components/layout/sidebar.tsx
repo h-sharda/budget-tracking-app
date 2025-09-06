@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import toast from "react-hot-toast";
+import { useProfileContext } from "@/contexts/ProfileContext";
 import {
   Home,
   PlusCircle,
@@ -19,14 +21,16 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Add Transaction", href: "/transactions/new", icon: PlusCircle },
   { name: "View Transactions", href: "/transactions", icon: List },
+  { name: "Profile", href: "/profile", icon: User },
 ];
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { profileData } = useProfileContext();
 
   const handleSignOut = () => {
+    toast.success("Signed out successfully");
     signOut({ callbackUrl: "/auth/signin" });
   };
 
@@ -86,9 +90,9 @@ export function Sidebar() {
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium">
-                  {session?.user?.name || "User"}
+                  {profileData?.name || "User"}
                 </p>
-                <p className="text-xs text-gray-300">{session?.user?.email}</p>
+                <p className="text-xs text-gray-300">{profileData?.email}</p>
               </div>
             </div>
             <button

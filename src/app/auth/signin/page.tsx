@@ -4,18 +4,17 @@ import { useState } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const result = await signIn("credentials", {
@@ -25,16 +24,17 @@ export default function SignIn() {
       });
 
       if (result?.error) {
-        setError("Invalid credentials");
+        toast.error("Invalid credentials");
       } else {
         const session = await getSession();
         if (session) {
+          toast.success("Signed in successfully");
           router.push("/dashboard");
         }
       }
     } catch (err) {
       console.error(err);
-      setError("Something went wrong");
+      toast.error("Something went wrong");
     }
 
     setLoading(false);
@@ -92,10 +92,6 @@ export default function SignIn() {
               />
             </div>
           </div>
-
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
 
           <div>
             <button

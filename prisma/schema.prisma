@@ -47,6 +47,8 @@ model User {
   password      String?
   emailVerified DateTime?
   image         String?
+  baseBalance   Float         @default(0)
+  currency      String        @default("INR")
   accounts      Account[]
   sessions      Session[]
   transactions  Transaction[]

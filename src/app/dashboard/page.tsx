@@ -18,14 +18,17 @@ import {
   Line,
 } from "recharts";
 import { DollarSign, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { formatCurrency } from "@/lib/currency";
 
 interface DashboardData {
   currentMonth: {
     totalIncome: number;
     totalExpenses: number;
+    baseBalance: number;
     netBalance: number;
     month: number;
     year: number;
+    currency: string;
   };
   monthlyData: {
     month: string;
@@ -117,7 +120,26 @@ export default function Dashboard() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-full bg-blue-100">
+                <Wallet className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-800">
+                  Base Balance
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatCurrency(
+                    currentMonth.baseBalance,
+                    currentMonth.currency
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-100">
@@ -128,7 +150,10 @@ export default function Dashboard() {
                   Total Income
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {currentMonth.totalIncome.toFixed(2)}
+                  {formatCurrency(
+                    currentMonth.totalIncome,
+                    currentMonth.currency
+                  )}
                 </p>
               </div>
             </div>
@@ -144,7 +169,10 @@ export default function Dashboard() {
                   Total Expenses
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {currentMonth.totalExpenses.toFixed(2)}
+                  {formatCurrency(
+                    currentMonth.totalExpenses,
+                    currentMonth.currency
+                  )}
                 </p>
               </div>
             </div>
@@ -174,7 +202,10 @@ export default function Dashboard() {
                       : "text-red-600"
                   }`}
                 >
-                  {currentMonth.netBalance.toFixed(2)}
+                  {formatCurrency(
+                    currentMonth.netBalance,
+                    currentMonth.currency
+                  )}
                 </p>
               </div>
             </div>
@@ -216,7 +247,10 @@ export default function Dashboard() {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip
-                  formatter={(value: number) => [`${value.toFixed(2)}`, ""]}
+                  formatter={(value: number) => [
+                    formatCurrency(value, currentMonth.currency),
+                    "",
+                  ]}
                 />
                 <Bar dataKey="income" fill="#10B981" name="Income" />
                 <Bar dataKey="expenses" fill="#EF4444" name="Expenses" />
@@ -252,7 +286,9 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number) => `${value.toFixed(2)}`}
+                    formatter={(value: number) =>
+                      formatCurrency(value, currentMonth.currency)
+                    }
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -276,7 +312,7 @@ export default function Dashboard() {
               <YAxis />
               <Tooltip
                 formatter={(value: number) => [
-                  `${value.toFixed(2)}`,
+                  formatCurrency(value, currentMonth.currency),
                   "Savings",
                 ]}
               />

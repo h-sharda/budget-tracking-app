@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Edit, Trash2, Filter, Plus } from "lucide-react";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 
 interface Transaction {
   id: string;
@@ -27,6 +29,9 @@ export default function Transactions() {
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [deletingTransaction, setDeletingTransaction] =
+    useState<Transaction | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const currentYear = new Date().getFullYear();
 
@@ -50,6 +55,8 @@ export default function Transactions() {
       if (response.ok) {
         const data = await response.json();
         setTransactions(data);
+      } else {
+        toast.error("Failed to load transactions");
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -62,21 +69,36 @@ export default function Transactions() {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this transaction?")) {
-      return;
-    }
+  const handleDelete = (transaction: Transaction) => {
+    setDeletingTransaction(transaction);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingTransaction) return;
 
     try {
-      const response = await fetch(`/api/transactions/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/transactions/${deletingTransaction.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
-        setTransactions(transactions.filter((t) => t.id !== id));
+        setTransactions(
+          transactions.filter((t) => t.id !== deletingTransaction.id)
+        );
+        toast.success("Transaction deleted successfully");
+      } else {
+        toast.error("Failed to delete transaction");
       }
     } catch (error) {
       console.error("Error deleting transaction:", error);
+      toast.error("Failed to delete transaction");
+    } finally {
+      setShowDeleteModal(false);
+      setDeletingTransaction(null);
     }
   };
 
@@ -105,9 +127,13 @@ export default function Transactions() {
         );
         setShowEditModal(false);
         setEditingTransaction(null);
+        toast.success("Transaction updated successfully");
+      } else {
+        toast.error("Failed to update transaction");
       }
     } catch (error) {
       console.error("Error updating transaction:", error);
+      toast.error("Failed to update transaction");
     }
   };
 
@@ -324,7 +350,7 @@ export default function Transactions() {
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(transaction.id)}
+                            onClick={() => handleDelete(transaction)}
                             className="text-red-600 hover:text-red-900"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -348,6 +374,19 @@ export default function Transactions() {
           onUpdate={handleUpdate}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Transaction"
+        message={`Are you sure you want to delete this ${deletingTransaction?.type.toLowerCase()} transaction of ${
+          deletingTransaction ? formatCurrency(deletingTransaction.amount) : ""
+        }?`}
+        confirmText="Delete"
+        variant="danger"
+      />
     </DashboardLayout>
   );
 }
