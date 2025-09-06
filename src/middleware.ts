@@ -31,9 +31,8 @@ export const config = {
      * - api/auth (NextAuth API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public/ (all public static assets)
+     * - All public folder files (sitemap, robots, icons, images, etc.)
      */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|public/).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|android-chrome-192x192.png|android-chrome-512x512.png|apple-touch-icon.png|favicon-16x16.png|favicon-32x32.png|file.svg|globe.svg|icon.svg|next.svg|site.webmanifest|vercel.svg|window.svg|screenshots/).*)",
   ],
 };
