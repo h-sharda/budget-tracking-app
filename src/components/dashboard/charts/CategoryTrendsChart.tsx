@@ -10,7 +10,6 @@ import {
 import { formatCurrency } from "@/lib/currency";
 import { CHART_COLORS } from "@/types/dashboard";
 import { useState, useMemo } from "react";
-import { useDateUtils } from "@/hooks/useDateUtils";
 
 interface CategoryTrendsChartProps {
   categoryTrends: {
@@ -34,7 +33,6 @@ export function CategoryTrendsChart({
   showCumulativeToggle = false,
 }: CategoryTrendsChartProps) {
   const [isCumulative, setIsCumulative] = useState(true);
-  const dateUtils = useDateUtils();
 
   const transformedCategoryTrends = useMemo(() => {
     if (!isCumulative || !showCumulativeToggle) {
@@ -73,8 +71,8 @@ export function CategoryTrendsChart({
 
     // Sort months chronologically
     const sortedMonths = Array.from(allMonths).sort((a, b) => {
-      const dateA = dateUtils.getLocalDate(a);
-      const dateB = dateUtils.getLocalDate(b);
+      const dateA = new Date(a);
+      const dateB = new Date(b);
       return dateA.getTime() - dateB.getTime();
     });
 
@@ -87,7 +85,7 @@ export function CategoryTrendsChart({
       });
       return dataPoint;
     });
-  }, [transformedCategoryTrends, dateUtils]);
+  }, [transformedCategoryTrends]);
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -114,12 +112,7 @@ export function CategoryTrendsChart({
       <ResponsiveContainer width="100%" height={height}>
         <RechartsLineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="month"
-            tickFormatter={(value) =>
-              dateUtils.formatDateForChart(value, "month")
-            }
-          />
+          <XAxis dataKey="month" />
           <YAxis />
           <Tooltip
             formatter={(value: number, name: string) => [

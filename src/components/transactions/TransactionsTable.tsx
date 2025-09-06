@@ -2,7 +2,6 @@ import { Edit, Trash2, Plus } from "lucide-react";
 import Link from "next/link";
 import { Transaction } from "@/types/transaction";
 import { formatCurrency } from "@/lib/currency";
-import { useDateUtils } from "@/hooks/useDateUtils";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -17,8 +16,6 @@ export function TransactionsTable({
   onEdit,
   onDelete,
 }: TransactionsTableProps) {
-  const dateUtils = useDateUtils();
-
   if (loading) {
     return (
       <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -77,7 +74,7 @@ export function TransactionsTable({
             {transactions.map((transaction) => (
               <tr key={transaction.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {dateUtils.formatDateForDisplay(transaction.date)}
+                  {transaction.date}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span

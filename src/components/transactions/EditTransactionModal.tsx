@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Transaction, TransactionFormData } from "@/types/transaction";
-import { useDateUtils } from "@/hooks/useDateUtils";
 import {
   INCOME_CATEGORIES,
   EXPENSE_CATEGORIES,
@@ -17,10 +16,9 @@ export function EditTransactionModal({
   onClose,
   onUpdate,
 }: EditTransactionModalProps) {
-  const dateUtils = useDateUtils();
   const [formData, setFormData] = useState<TransactionFormData>({
     ...transaction,
-    date: dateUtils.formatDateForInput(transaction.date), // Format for date input
+    date: transaction.date,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
