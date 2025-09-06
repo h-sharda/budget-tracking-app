@@ -14,7 +14,7 @@ import {
   LogOut,
   Menu,
   X,
-  Wallet,
+  BarChart3,
 } from "lucide-react";
 
 const navigation = [
@@ -55,8 +55,10 @@ export function Sidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center px-4 py-6">
-            <Wallet className="h-8 w-8 text-green-400" />
-            <h1 className="ml-2 text-xl font-bold">Budget Tracker</h1>
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="ml-2 text-xl font-bold">BudgetTracker</h1>
           </div>
 
           {/* Navigation */}

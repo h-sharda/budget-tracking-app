@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://budget-tracker-x.vercel.app//sitemap.xml
+
+# Disallow private areas
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /transactions/
+Disallow: /profile/

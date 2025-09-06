@@ -7,10 +7,10 @@ import {
   PeriodAnalytics,
   RangeAnalytics,
 } from "@/components/dashboard";
+import { useProfileContext } from "@/contexts/ProfileContext";
 
 export default function Dashboard() {
   const {
-    session,
     overallData,
     periodData,
     rangeData,
@@ -20,6 +20,8 @@ export default function Dashboard() {
     setPeriodFilter,
     setRangeFilter,
   } = useDashboardData();
+
+  const { profileData } = useProfileContext();
 
   if (loading.overall) {
     return (
@@ -49,7 +51,7 @@ export default function Dashboard() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome back, {session?.user?.name}!
+            Welcome back, {profileData?.name}!
           </h1>
           <p className="text-gray-800">
             Here&apos;s your comprehensive financial overview

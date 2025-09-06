@@ -50,7 +50,7 @@ export default function AuthLayout({
         </div>
 
         {/* Footer */}
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-4">
           <p className="text-sm text-gray-600">
             {footerText}{" "}
             <Link
@@ -60,6 +60,14 @@ export default function AuthLayout({
               {footerLinkText}
             </Link>
           </p>
+          <div>
+            <Link
+              href="/"
+              className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              ← Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>
