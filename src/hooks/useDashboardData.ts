@@ -14,6 +14,7 @@ export function useDashboardData() {
   const [overallData, setOverallData] = useState<OverallData | null>(null);
   const [periodData, setPeriodData] = useState<PeriodData | null>(null);
   const [rangeData, setRangeData] = useState<RangeData | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const [loading, setLoading] = useState<LoadingState>({
     overall: true,
@@ -51,10 +52,11 @@ export function useDashboardData() {
       }
     };
 
-    if (session) {
+    if (session?.user?.id && !hasInitialized) {
       fetchOverallData();
+      setHasInitialized(true);
     }
-  }, [session]);
+  }, [session?.user?.id, hasInitialized]);
 
   // Fetch period data
   const fetchPeriodData = useCallback(async () => {
@@ -107,17 +109,17 @@ export function useDashboardData() {
 
   // Fetch period data when filter changes
   useEffect(() => {
-    if (session) {
+    if (session?.user?.id && hasInitialized) {
       fetchPeriodData();
     }
-  }, [fetchPeriodData, session]);
+  }, [fetchPeriodData, session?.user?.id, hasInitialized]);
 
   // Fetch range data when filter changes
   useEffect(() => {
-    if (session) {
+    if (session?.user?.id && hasInitialized) {
       fetchRangeData();
     }
-  }, [fetchRangeData, session]);
+  }, [fetchRangeData, session?.user?.id, hasInitialized]);
 
   return {
     session,

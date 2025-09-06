@@ -109,7 +109,7 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 z-30 bg-black/20 backdrop-blur-[2px]"
           onClick={() => setIsOpen(false)}
         />
       )}
