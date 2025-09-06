@@ -32,6 +32,8 @@ export default function Transactions() {
   const [deletingTransaction, setDeletingTransaction] =
     useState<Transaction | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [yearsLoading, setYearsLoading] = useState(true);
 
   const currentYear = new Date().getFullYear();
 
@@ -68,6 +70,30 @@ export default function Transactions() {
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
+
+  // Fetch available years
+  useEffect(() => {
+    const fetchAvailableYears = async () => {
+      try {
+        const response = await fetch("/api/dashboard/years");
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableYears(data.years);
+        } else {
+          // Fallback to current year if API fails
+          setAvailableYears([currentYear]);
+        }
+      } catch (error) {
+        console.error("Error fetching available years:", error);
+        // Fallback to current year if API fails
+        setAvailableYears([currentYear]);
+      } finally {
+        setYearsLoading(false);
+      }
+    };
+
+    fetchAvailableYears();
+  }, [currentYear]);
 
   const handleDelete = (transaction: Transaction) => {
     setDeletingTransaction(transaction);
@@ -152,7 +178,8 @@ export default function Transactions() {
     });
   };
 
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  // Use availableYears from API, fallback to current year if loading
+  const years = yearsLoading ? [currentYear] : availableYears;
   const months = [
     { value: "1", label: "January" },
     { value: "2", label: "February" },
@@ -205,9 +232,10 @@ export default function Transactions() {
                   }
                 }}
                 className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                disabled={yearsLoading}
               >
                 <option value="" disabled={filters.month !== ""}>
-                  All Years
+                  {yearsLoading ? "Loading..." : "All Years"}
                 </option>
                 {years.map((year) => (
                   <option key={year} value={year.toString()}>
@@ -441,7 +469,7 @@ function EditTransactionModal({
     formData.type === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         <h2 className="text-lg font-medium text-gray-900 mb-4">
           Edit Transaction
