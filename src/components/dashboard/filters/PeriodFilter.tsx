@@ -1,6 +1,7 @@
 import { Filter } from "lucide-react";
 import { PeriodFilter as PeriodFilterType } from "@/types/dashboard";
 import { useState, useEffect } from "react";
+import { useDateUtils } from "@/hooks/useDateUtils";
 
 interface PeriodFilterProps {
   filter: PeriodFilterType;
@@ -10,6 +11,7 @@ interface PeriodFilterProps {
 export function PeriodFilter({ filter, onFilterChange }: PeriodFilterProps) {
   const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const dateUtils = useDateUtils();
 
   useEffect(() => {
     const fetchAvailableYears = async () => {
@@ -68,9 +70,7 @@ export function PeriodFilter({ filter, onFilterChange }: PeriodFilterProps) {
           >
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
-                {new Date(0, i).toLocaleDateString("en-US", {
-                  month: "long",
-                })}
+                {dateUtils.getMonthName(new Date(0, i))}
               </option>
             ))}
           </select>

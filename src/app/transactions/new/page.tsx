@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import toast from "react-hot-toast";
+import { useDateUtils } from "@/hooks/useDateUtils";
 
 const INCOME_CATEGORIES = [
   "Salary",
@@ -32,12 +33,13 @@ const EXPENSE_CATEGORIES = [
 ];
 
 export default function NewTransaction() {
+  const dateUtils = useDateUtils();
   const [formData, setFormData] = useState({
     amount: "",
     type: "EXPENSE",
     category: "",
     description: "",
-    date: new Date().toISOString().split("T")[0],
+    date: dateUtils.formatDateForInput(new Date()),
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();

@@ -6,6 +6,8 @@ import { Edit, Trash2, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { ConfirmationModal } from "@/components/ui/confirmation-modal";
+import { useDateUtils } from "@/hooks/useDateUtils";
+import { formatCurrency } from "@/lib/currency";
 
 interface Transaction {
   id: string;
@@ -35,6 +37,7 @@ export default function Transactions() {
   const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [yearsLoading, setYearsLoading] = useState(true);
 
+  const dateUtils = useDateUtils();
   const currentYear = new Date().getFullYear();
 
   const fetchTransactions = useCallback(async () => {
@@ -163,20 +166,8 @@ export default function Transactions() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  // Using centralized formatCurrency from lib/currency
+  // Using centralized date utilities from hooks/useDateUtils
 
   // Use availableYears from API, fallback to current year if loading
   const years = yearsLoading ? [currentYear] : availableYears;
@@ -338,7 +329,7 @@ export default function Transactions() {
                   {transactions.map((transaction) => (
                     <tr key={transaction.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(transaction.date)}
+                        {dateUtils.formatDateForDisplay(transaction.date)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -366,7 +357,7 @@ export default function Transactions() {
                           }
                         >
                           {transaction.type === "INCOME" ? "+" : "-"}
-                          {formatCurrency(transaction.amount)}
+                          {formatCurrency(transaction.amount, "INR")}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
@@ -410,7 +401,9 @@ export default function Transactions() {
         onConfirm={confirmDelete}
         title="Delete Transaction"
         message={`Are you sure you want to delete this ${deletingTransaction?.type.toLowerCase()} transaction of ${
-          deletingTransaction ? formatCurrency(deletingTransaction.amount) : ""
+          deletingTransaction
+            ? formatCurrency(deletingTransaction.amount, "INR")
+            : ""
         }?`}
         confirmText="Delete"
         variant="danger"
@@ -429,9 +422,10 @@ function EditTransactionModal({
   onClose: () => void;
   onUpdate: (transaction: Transaction) => void;
 }) {
+  const dateUtils = useDateUtils();
   const [formData, setFormData] = useState({
     ...transaction,
-    date: transaction.date.split("T")[0], // Format for date input
+    date: dateUtils.formatDateForInput(transaction.date), // Format for date input
   });
 
   const handleSubmit = (e: React.FormEvent) => {

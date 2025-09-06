@@ -12,6 +12,11 @@ export default withAuth(
           return true;
         }
 
+        // Allow access to home page without authentication
+        if (req.nextUrl.pathname === "/") {
+          return true;
+        }
+
         // For all other pages, require authentication
         return !!token;
       },

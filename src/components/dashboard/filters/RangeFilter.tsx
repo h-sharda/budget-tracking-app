@@ -1,5 +1,6 @@
 import { Calendar } from "lucide-react";
 import { RangeFilter as RangeFilterType } from "@/types/dashboard";
+import { useDateUtils } from "@/hooks/useDateUtils";
 
 interface RangeFilterProps {
   filter: RangeFilterType;
@@ -14,93 +15,62 @@ const presets = [
 ] as const;
 
 // Helper function to calculate date ranges for presets
-const calculatePresetRange = (preset: string) => {
-  const currentDate = new Date();
-  let startDate: Date;
-  let endDate: Date;
-
+const calculatePresetRange = (
+  preset: string,
+  dateUtils: ReturnType<typeof useDateUtils>
+) => {
   switch (preset) {
     case "3months":
-      startDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() - 3,
-        1
+      const threeMonthsAgo = dateUtils.addMonths(new Date(), -3);
+      const startOfThreeMonthsAgo = dateUtils.getStartOfDay(threeMonthsAgo);
+      const endOfLastMonth = dateUtils.getEndOfDay(
+        dateUtils.addDays(new Date(), -1)
       );
-      endDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        0,
-        23,
-        59,
-        59
-      );
-      break;
+      return {
+        startDate: dateUtils.formatDateForInput(startOfThreeMonthsAgo),
+        endDate: dateUtils.formatDateForInput(endOfLastMonth),
+      };
     case "6months":
-      startDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() - 6,
-        1
+      const sixMonthsAgo = dateUtils.addMonths(new Date(), -6);
+      const startOfSixMonthsAgo = dateUtils.getStartOfDay(sixMonthsAgo);
+      const endOfLastMonth6 = dateUtils.getEndOfDay(
+        dateUtils.addDays(new Date(), -1)
       );
-      endDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        0,
-        23,
-        59,
-        59
-      );
-      break;
+      return {
+        startDate: dateUtils.formatDateForInput(startOfSixMonthsAgo),
+        endDate: dateUtils.formatDateForInput(endOfLastMonth6),
+      };
     case "year":
-      startDate = new Date(
-        currentDate.getFullYear() - 1,
-        currentDate.getMonth(),
-        1
+      const oneYearAgo = dateUtils.addYears(new Date(), -1);
+      const startOfOneYearAgo = dateUtils.getStartOfDay(oneYearAgo);
+      const endOfLastMonthYear = dateUtils.getEndOfDay(
+        dateUtils.addDays(new Date(), -1)
       );
-      endDate = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        0,
-        23,
-        59,
-        59
-      );
-      break;
+      return {
+        startDate: dateUtils.formatDateForInput(startOfOneYearAgo),
+        endDate: dateUtils.formatDateForInput(endOfLastMonthYear),
+      };
     case "thisyear":
-      startDate = new Date(currentDate.getFullYear(), 0, 1);
-      endDate = new Date(currentDate.getFullYear(), 11, 31, 23, 59, 59);
-      break;
+      const currentYear = new Date().getFullYear();
+      const startOfYear = new Date(currentYear, 0, 1);
+      const endOfYear = new Date(currentYear, 11, 31);
+      return {
+        startDate: dateUtils.formatDateForInput(startOfYear),
+        endDate: dateUtils.formatDateForInput(endOfYear),
+      };
     default:
       return null;
   }
-
-  // Format dates to avoid timezone issues
-  const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  return {
-    startDate: formatDate(startDate),
-    endDate: formatDate(endDate),
-  };
-};
-
-// Helper function to format date for display
-const formatDateForDisplay = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 };
 
 export function RangeFilter({ filter, onFilterChange }: RangeFilterProps) {
+  const dateUtils = useDateUtils();
+
   // Calculate date range for current preset
   const currentRange =
-    filter.preset !== "custom" ? calculatePresetRange(filter.preset) : null;
+    filter.preset !== "custom"
+      ? calculatePresetRange(filter.preset, dateUtils)
+      : null;
 
   // Handle date input changes - switch to custom when dates are manually changed
   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
@@ -174,8 +144,8 @@ export function RangeFilter({ filter, onFilterChange }: RangeFilterProps) {
             </div>
           ) : currentRange ? (
             <span className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-md">
-              {formatDateForDisplay(currentRange.startDate)} to{" "}
-              {formatDateForDisplay(currentRange.endDate)}
+              {dateUtils.formatDateForDisplay(currentRange.startDate)} to{" "}
+              {dateUtils.formatDateForDisplay(currentRange.endDate)}
             </span>
           ) : null}
         </div>
