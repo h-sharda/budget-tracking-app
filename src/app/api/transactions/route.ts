@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
     const month = searchParams.get("month");
     const year = searchParams.get("year");
     const type = searchParams.get("type");
+    const category = searchParams.get("category");
+    const sortBy = searchParams.get("sortBy") || "date";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
 
     const whereClause: Prisma.TransactionWhereInput = {
       userId: session.user.id,
@@ -52,10 +55,34 @@ export async function GET(req: NextRequest) {
       whereClause.type = type;
     }
 
+    if (category) {
+      whereClause.category = category;
+    }
+
+    // For date sorting, we can use Prisma's orderBy
+    // For amount sorting, we need to fetch all and sort manually
+    const orderBy: Prisma.TransactionOrderByWithRelationInput =
+      sortBy === "date" ? { date: sortOrder as "asc" | "desc" } : {};
+
     const transactions = await prisma.transaction.findMany({
       where: whereClause,
-      orderBy: { date: "desc" },
+      orderBy: sortBy === "date" ? orderBy : undefined,
     });
+
+    // If sorting by amount, apply custom sorting logic
+    if (sortBy === "amount") {
+      transactions.sort((a, b) => {
+        // Calculate actual transaction values (positive for income, negative for expense)
+        const aValue = a.type === "INCOME" ? a.amount : -a.amount;
+        const bValue = b.type === "INCOME" ? b.amount : -b.amount;
+
+        if (sortOrder === "asc") {
+          return aValue - bValue;
+        } else {
+          return bValue - aValue;
+        }
+      });
+    }
 
     return NextResponse.json(transactions);
   } catch (error) {
