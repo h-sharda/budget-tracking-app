@@ -18,7 +18,7 @@ export function EditTransactionModal({
 }: EditTransactionModalProps) {
   const [formData, setFormData] = useState<TransactionFormData>({
     ...transaction,
-    date: transaction.date,
+    date: transaction.date.split("T")[0],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
