@@ -14,26 +14,10 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const router = useRouter();
 
-  // Password strength validation
-  const getPasswordStrength = (password: string) => {
-    let strength = 0;
-    const checks = {
-      length: password.length >= 8,
-      lowercase: /[a-z]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-      number: /\d/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-    };
-
-    strength = Object.values(checks).filter(Boolean).length;
-    return { strength, checks };
-  };
-
-  const passwordStrength = getPasswordStrength(password);
-  const isPasswordValid = passwordStrength.strength >= 3;
+  // Password validation - only require minimum 6 characters
+  const isPasswordValid = password.length >= 6;
   const passwordsMatch = password === confirmPassword && password !== "";
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,12 +32,6 @@ export default function SignUpForm() {
 
     if (!isPasswordValid) {
       toast.error("Password does not meet requirements");
-      setLoading(false);
-      return;
-    }
-
-    if (!acceptTerms) {
-      toast.error("Please accept the terms and conditions");
       setLoading(false);
       return;
     }
@@ -105,8 +83,7 @@ export default function SignUpForm() {
     name.trim() !== "" &&
     email.trim() !== "" &&
     isPasswordValid &&
-    passwordsMatch &&
-    acceptTerms;
+    passwordsMatch;
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -186,56 +163,24 @@ export default function SignUpForm() {
             </button>
           </div>
 
-          {/* Password Strength Indicator */}
+          {/* Password Length Indicator */}
           {password && (
             <div className="mt-2">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      passwordStrength.strength <= 2
-                        ? "bg-red-500"
-                        : passwordStrength.strength <= 3
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
-                    }`}
-                    style={{
-                      width: `${(passwordStrength.strength / 5) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-xs text-gray-600">
-                  {passwordStrength.strength <= 2
-                    ? "Weak"
-                    : passwordStrength.strength <= 3
-                    ? "Fair"
-                    : "Strong"}
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                {Object.entries(passwordStrength.checks).map(
-                  ([key, isValid]) => (
-                    <div
-                      key={key}
-                      className="flex items-center space-x-2 text-xs"
-                    >
-                      {isValid ? (
-                        <Check className="h-3 w-3 text-green-500" />
-                      ) : (
-                        <X className="h-3 w-3 text-gray-400" />
-                      )}
-                      <span
-                        className={isValid ? "text-green-600" : "text-gray-500"}
-                      >
-                        {key === "length" && "At least 8 characters"}
-                        {key === "lowercase" && "Contains lowercase letter"}
-                        {key === "uppercase" && "Contains uppercase letter"}
-                        {key === "number" && "Contains number"}
-                        {key === "special" && "Contains special character"}
-                      </span>
-                    </div>
-                  )
+              <div className="flex items-center space-x-2 text-xs">
+                {isPasswordValid ? (
+                  <>
+                    <Check className="h-3 w-3 text-green-500" />
+                    <span className="text-green-600">
+                      Password meets requirements
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <X className="h-3 w-3 text-red-500" />
+                    <span className="text-red-600">
+                      Password must be at least 6 characters
+                    </span>
+                  </>
                 )}
               </div>
             </div>
@@ -297,46 +242,6 @@ export default function SignUpForm() {
               )}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Terms and Conditions */}
-      <div className="flex items-start">
-        <div className="flex items-center h-5">
-          <input
-            id="accept-terms"
-            name="accept-terms"
-            type="checkbox"
-            checked={acceptTerms}
-            onChange={(e) => setAcceptTerms(e.target.checked)}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-        </div>
-        <div className="ml-3 text-sm">
-          <label htmlFor="accept-terms" className="text-gray-700">
-            I agree to the{" "}
-            <a
-              href="#"
-              className="text-indigo-600 hover:text-indigo-500 font-medium"
-              onClick={(e) => {
-                e.preventDefault();
-                toast("Terms and conditions coming soon!");
-              }}
-            >
-              Terms and Conditions
-            </a>{" "}
-            and{" "}
-            <a
-              href="#"
-              className="text-indigo-600 hover:text-indigo-500 font-medium"
-              onClick={(e) => {
-                e.preventDefault();
-                toast("Privacy policy coming soon!");
-              }}
-            >
-              Privacy Policy
-            </a>
-          </label>
         </div>
       </div>
 
